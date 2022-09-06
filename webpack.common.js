@@ -3,7 +3,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 module.exports = {
-  entry: './src/index.js',
+  entry: './src/index.ts',
   plugins: [
     new HtmlWebpackPlugin({
       title: 'Project - Todolist',
@@ -18,6 +18,11 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.tsx?$/,
+        use: 'ts-loader',
+        exclude: /node_modules/,
+      },
+      {
         test: /\.css$/i,
         use: [MiniCssExtractPlugin.loader, 'css-loader'],
       },
@@ -26,6 +31,9 @@ module.exports = {
         use: ['file-loader'],
       },
     ],
+  },
+  resolve: {
+    extensions: ['.tsx', 'ts', 'js'],
   },
   output: {
     filename: 'bundle.js',

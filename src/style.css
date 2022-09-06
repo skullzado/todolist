@@ -1,11 +1,23 @@
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
 
-/* CSS RESET */
+/* CSS VARIABLES */
+:root {
+  --black: rgb(0, 0, 0);
+  --white: rgb(255, 255, 255);
+  --blue: rgb(33, 150, 243);
+  --blue-op80: rgba(33, 150, 243, 0.8);
+  --red: rgb(244, 67, 54);
+  --orange: rgb(255, 193, 7);
+  --green: rgb(76, 175, 80);
+  --gray: rgb(158, 158, 158);
+}
 
+/* CSS RESET */
 html {
   width: 100vw;
   height: 100vh;
   box-sizing: border-box;
+  font-size: 100%;
 }
 
 *,
@@ -20,6 +32,8 @@ body {
   width: 100%;
   height: 100%;
   font-family: 'Quicksand', sans-serif;
+  background-color: var(--light);
+  color: var(--black);
 }
 
 h1,
@@ -48,6 +62,7 @@ h4 {
 
 p,
 a,
+label,
 span {
   font-size: 1rem;
 }
@@ -60,20 +75,25 @@ a,
 a:active,
 a:visited {
   text-decoration: none;
+  color: var(--black);
 }
 
 button,
-input {
+input,
+textarea,
+select {
   font-family: inherit;
-  font-size: 0.875rem;
+  font-size: 1rem;
 }
 
 button {
   cursor: pointer;
+  font-family: inherit;
 }
 
 input {
   cursor: text;
+  font-family: inherit;
 }
 
 #root {
@@ -81,4 +101,15 @@ input {
   height: 100%;
 }
 
-/* MAIN STYLE */
+.app {
+  width: 100%;
+  height: 100%;
+}
+
+/* MEDIA QUERIES */
+@media (min-width: 48.0625em) {
+  .app {
+    width: min(100% - 2.5rem, 67.5rem);
+    margin-inline: auto;
+  }
+}
