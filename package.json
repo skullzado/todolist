@@ -1,8 +1,7 @@
 {
   "name": "todolist",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Todolist App for TheOdinProject",
   "private": true,
   "scripts": {
     "dev": "webpack serve --config webpack.dev.js",
@@ -13,6 +12,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/date-fns": "^2.6.0",
+    "@types/node": "^18.7.15",
     "css-loader": "^6.7.1",
     "file-loader": "^6.2.0",
     "html-webpack-plugin": "^5.5.0",
@@ -26,6 +26,6 @@
   },
   "dependencies": {
     "date-fns": "^2.29.2",
-    "uuid": "^8.3.2"
+    "uuid": "^9.0.0"
   }
 }
