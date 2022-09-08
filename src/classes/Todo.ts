@@ -34,8 +34,4 @@ export default class Todo implements ITodo {
       new Date().getDate()
     ).toISOString();
   }
-
-  getTodo() {
-    return this;
-  }
 }

@@ -6,6 +6,9 @@ export interface IProject {
   title: string;
   todos: ITodo[];
   taskNumber: number;
+  addTodo(todo: ITodo): void;
+  deleteTodo(id: string): ITodo[];
+  updateTodo(id: string, newTodo: ITodo): ITodo[];
 }
 
 export default class Project implements IProject {
@@ -21,16 +24,14 @@ export default class Project implements IProject {
     this.taskNumber = this.todos.length;
   }
 
-  getProject() {
-    return this;
-  }
-
   addTodo(todo: ITodo) {
     this.todos.push(todo);
+    this.taskNumber = this.todos.length;
   }
 
   deleteTodo(id: string) {
     this.todos = this.todos.filter((todo) => todo.id !== id);
+    this.taskNumber = this.todos.length;
     return this.todos;
   }
 
