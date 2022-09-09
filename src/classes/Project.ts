@@ -9,6 +9,7 @@ export interface IProject {
   addTodo(todo: ITodo): void;
   deleteTodo(id: string): ITodo[];
   updateTodo(id: string, newTodo: ITodo): ITodo[];
+  completeTodo(id: string): ITodo[];
 }
 
 export default class Project implements IProject {
@@ -39,6 +40,17 @@ export default class Project implements IProject {
     return this.todos.map((todo) => {
       if (todo.id === id) {
         todo = Object.assign(todo, newTodo);
+        return todo;
+      }
+      return todo;
+    });
+  }
+
+  completeTodo(id: string) {
+    return this.todos.map((todo) => {
+      if (todo.id === id) {
+        todo.isCompleted = !todo.isCompleted;
+        todo.completedDate = new Date().toISOString();
         return todo;
       }
       return todo;

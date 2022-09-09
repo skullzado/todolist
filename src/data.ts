@@ -7,13 +7,15 @@ export const ProjectList: IProject[] = [
       'Learn TypeScript',
       'Learn it now or else!',
       4,
-      new Date('12-01-2022').toISOString()
+      new Date('12-01-2022').toISOString(),
+      'Work'
     ),
     new Todo(
       'Learn React',
       'Learn it now or else!',
       3,
-      new Date('12-01-2022').toISOString()
+      new Date('12-01-2022').toISOString(),
+      'Work'
     ),
   ]),
   new Project('Personal', []),
