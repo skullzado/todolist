@@ -1,9 +1,12 @@
 import UI from './classes/UI';
 import { ProjectList } from './data';
 import {
+  attachShowModalListener,
   attachNavListener,
   attachShowListener,
   attachTodoActionsListeners,
+  attachHideModalListener,
+  attachAddSubmitListener,
 } from './functions';
 import './style.css';
 
@@ -16,3 +19,6 @@ UI.renderAddTodoModal();
 attachShowListener();
 attachNavListener();
 attachTodoActionsListeners();
+attachShowModalListener();
+attachHideModalListener();
+attachAddSubmitListener();

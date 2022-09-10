@@ -127,7 +127,7 @@ export default class UI {
                   : 'todo'
               }">
                 <div class="todo-header">
-                  <h4 class="todo__title">${todo.title}</h4>
+                  <p class="todo__title">${todo.title}</p>
                   <div class="todo__priority">
                     <span class="todo__priority-level ${
                       PriorityLevel[todo.priority]['color']
@@ -177,80 +177,6 @@ export default class UI {
     main?.appendChild(list);
     return list;
   }
-
-  // static attachDeleteListener() {
-  //   const deleteBtns = document.querySelectorAll('.delete-todo');
-
-  //   deleteBtns.forEach((deleteBtn) => {
-  //     deleteBtn.addEventListener('click', (event) => {
-  //       const todoId = (event.target as HTMLButtonElement).dataset['id'];
-  //       const projectTitle = (
-  //         document.querySelector(
-  //           '.project-nav__btn.active'
-  //         ) as HTMLButtonElement
-  //       ).dataset['project'];
-  //       const project = ProjectList.find((p) => p.title === projectTitle);
-  //       if (project && todoId) {
-  //         const newTodos = project.deleteTodo(todoId);
-  //         this.removeChildren(
-  //           document.querySelector('.project-nav') as HTMLDivElement
-  //         );
-  //         this.removeChildren(
-  //           document.querySelector('.todolist') as HTMLUListElement
-  //         );
-  //         this.renderNavList(ProjectList);
-  //         this.renderTodolist(newTodos);
-  //         attachNavListener();
-  //         attachShowListener();
-  //         this.attachDeleteListener();
-  //         this.attachCompleteListener();
-  //       } else {
-  //         return;
-  //       }
-  //     });
-  //   });
-  // }
-
-  // static attachCompleteListener() {
-  //   const completeBtns = document.querySelectorAll('.complete-todo');
-
-  //   completeBtns.forEach((completeBtn) => {
-  //     completeBtn.addEventListener('click', (event) => {
-  //       const todoId = (event.target as HTMLButtonElement).dataset['id'];
-  //       const projectTitle = (
-  //         document.querySelector(
-  //           '.project-nav__btn.active'
-  //         ) as HTMLButtonElement
-  //       ).dataset['project'];
-  //       const project = ProjectList.find((p) => p.title === projectTitle);
-  //       if (project && todoId) {
-  //         project.completeTodo(todoId);
-  //         const completedTodo = project.todos.filter(
-  //           (todo) => todo.isCompleted === true
-  //         )[0];
-  //         const completedTodos = ProjectList.find(
-  //           (p) => p.title === 'Completed'
-  //         );
-  //         completedTodos?.addTodo(completedTodo);
-  //         project.deleteTodo(completedTodo.id);
-  //         this.removeChildren(
-  //           document.querySelector('.project-nav') as HTMLDivElement
-  //         );
-  //         this.removeChildren(
-  //           document.querySelector('.todolist') as HTMLUListElement
-  //         );
-  //         this.renderNavList(ProjectList);
-  //         this.renderTodolist(project.todos);
-  //         attachNavListener();
-  //         attachShowListener();
-  //         this.attachDeleteListener();
-  //         console.log(ProjectList);
-  //       } else {
-  //         return;
-  //       }
-  //     });
-  //   });
-  // }
 
   static renderAddTodoModal() {
     const app = document.querySelector('.app');
@@ -330,7 +256,6 @@ export default class UI {
       (p) => p.title === activeBtn.dataset['project']
     );
     const selectedTodo = project?.todos.find((todo) => todo.id === todoId)!;
-    console.log(selectedTodo);
 
     modal.innerHTML = `
         <h2 class="modal__title">Edit Todo</h2>
@@ -394,7 +319,6 @@ export default class UI {
 
   static attachAddTodoListener() {
     const addTodo = document.querySelector('.add-todo') as HTMLButtonElement;
-
     addTodo.addEventListener('click', () => {
       const app = document.querySelector('.app') as HTMLDivElement;
       const modal = document.querySelector('.modal') as HTMLDivElement;
@@ -407,30 +331,13 @@ export default class UI {
     });
   }
 
-  static attachEditTodoListener() {
-    const editTodo = document.querySelector('.edit-todo') as HTMLButtonElement;
-
-    editTodo.addEventListener('click', () => {});
-  }
-
   static attachTodoActionsListeners(todoId?: string, isEditing?: boolean) {
-    const cancelBtn = document.querySelector(
-      '.cancel-btn'
-    ) as HTMLButtonElement;
     const form = document.querySelector('.modal__form') as HTMLFormElement;
     const app = document.querySelector('.app') as HTMLDivElement;
     const modal = document.querySelector('.modal') as HTMLDivElement;
     const modalBackdrop = document.querySelector(
       '.modal-backdrop'
     ) as HTMLDivElement;
-
-    cancelBtn.addEventListener('click', (event) => {
-      event.preventDefault();
-
-      app.classList.remove('show');
-      modal.classList.remove('show');
-      modalBackdrop.classList.remove('show');
-    });
 
     form.addEventListener('submit', (event) => {
       event.preventDefault();

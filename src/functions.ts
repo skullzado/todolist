@@ -1,4 +1,5 @@
 import UI from './classes/UI';
+import Todo, { ITodo } from './classes/Todo';
 import { IProject } from './classes/Project';
 import { ProjectList } from './data';
 
@@ -43,7 +44,7 @@ export const attachTodoActionsListeners = () => {
   if (editTodoBtns) {
     editTodoBtns.forEach((editTodoBtn) =>
       editTodoBtn.addEventListener('click', () => {
-        UI.renderEditTodoModal(editTodoBtn?.dataset['id']!);
+        const todoId = editTodoBtn?.dataset['id'];
         const app = document.querySelector('.app') as HTMLDivElement;
         const modal = document.querySelector('.modal') as HTMLDivElement;
         const modalBackdrop = document.querySelector(
@@ -52,6 +53,10 @@ export const attachTodoActionsListeners = () => {
         app.classList.add('show');
         modal.classList.add('show');
         modalBackdrop.classList.add('show');
+        if (!todoId) {
+          return;
+        }
+        UI.renderEditTodoModal(todoId);
       })
     );
   }
@@ -127,6 +132,91 @@ export const attachShowListener = () => {
   });
 };
 
+export const attachShowModalListener = () => {
+  const addTodoBtn = document.querySelector('.add-todo') as HTMLButtonElement;
+  addTodoBtn.addEventListener('click', () => {
+    const app = document.querySelector('.app') as HTMLDivElement;
+    const modal = document.querySelector('.modal') as HTMLDivElement;
+    const modalBackdrop = document.querySelector(
+      '.modal-backdrop'
+    ) as HTMLDivElement;
+    app.classList.add('show');
+    modal.classList.add('show');
+    modalBackdrop.classList.add('show');
+  });
+};
+
+export const attachHideModalListener = () => {
+  const cancelBtn = document.querySelector('.cancel-btn') as HTMLButtonElement;
+  cancelBtn.addEventListener('click', (event) => {
+    event.preventDefault();
+    const app = document.querySelector('.app') as HTMLDivElement;
+    const modal = document.querySelector('.modal') as HTMLDivElement;
+    const modalBackdrop = document.querySelector(
+      '.modal-backdrop'
+    ) as HTMLDivElement;
+    app.classList.remove('show');
+    modal.classList.remove('show');
+    modalBackdrop.classList.remove('show');
+  });
+};
+
+export const attachAddSubmitListener = () => {
+  const form = document.querySelector('.modal__form') as HTMLFormElement;
+  const app = document.querySelector('.app') as HTMLDivElement;
+  const modal = document.querySelector('.modal') as HTMLDivElement;
+  const modalBackdrop = document.querySelector(
+    '.modal-backdrop'
+  ) as HTMLDivElement;
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    handleAddFormSubmit();
+    app.classList.remove('show');
+    modal.classList.remove('show');
+    modalBackdrop.classList.remove('show');
+  });
+};
+
+const handleAddFormSubmit = () => {
+  const title = (document.getElementById('title') as HTMLInputElement).value;
+  const date = (document.getElementById('due') as HTMLInputElement).value;
+  const priority = (document.getElementById('priority') as HTMLSelectElement)
+    .value;
+  const projectTitle = (document.getElementById('project') as HTMLSelectElement)
+    .value;
+  const description = (
+    document.getElementById('description') as HTMLTextAreaElement
+  ).value;
+  const project = ProjectList.find((p) => p.title === projectTitle)!;
+
+  if (title && date && priority && description && projectTitle) {
+    project?.addTodo(
+      new Todo(title, description, Number(priority), date, projectTitle)
+    );
+  }
+  UI.removeChildren(document.querySelector('.project-nav') as HTMLDivElement);
+  UI.removeChildren(document.querySelector('.todolist') as HTMLUListElement);
+  UI.renderNavList(ProjectList);
+  UI.renderTodolist(project?.todos);
+  attachEventListeners();
+  attachAddSubmitListener();
+  attachNavListener();
+  attachTodoActionsListeners();
+};
+
+const handleEditFormSubmit = (todoId?: string, selectedProject?: IProject) => {
+  const title = (document.getElementById('title') as HTMLInputElement).value;
+  const date = (document.getElementById('due') as HTMLInputElement).value;
+  const priority = (document.getElementById('priority') as HTMLSelectElement)
+    .value;
+  const projectTitle = (document.getElementById('project') as HTMLSelectElement)
+    .value;
+  const description = (
+    document.getElementById('description') as HTMLTextAreaElement
+  ).value;
+  const project = ProjectList.find((p) => p.title === projectTitle)!;
+};
+
 const handleDeleteTodo = (todoId: string, selectedProject: IProject) => {
   selectedProject.deleteTodo(todoId);
   UI.removeChildren(document.querySelector('.project-nav') as HTMLDivElement);
@@ -145,8 +235,6 @@ const handleCompleteTodo = (todoId: string, selectedProject: IProject) => {
   const projectComplete = ProjectList.find((p) => p.title === 'Completed');
   projectComplete?.addTodo(selectedTodo);
   selectedProject.deleteTodo(selectedTodo?.id);
-  console.log(projectComplete);
-
   UI.removeChildren(document.querySelector('.project-nav') as HTMLDivElement);
   UI.removeChildren(document.querySelector('.todolist') as HTMLUListElement);
   UI.renderNavList(ProjectList);
