@@ -1,4 +1,4 @@
-import { ITodo } from './Todo';
+import { IOptionalTodo, ITodo } from './Todo';
 import { v4 as uuidv4 } from 'uuid';
 
 export interface IProject {
@@ -8,7 +8,7 @@ export interface IProject {
   taskNumber: number;
   addTodo(todo: ITodo): void;
   deleteTodo(id: string): ITodo[];
-  updateTodo(id: string, newTodo: ITodo): ITodo[];
+  updateTodo(id: string, newTodo: IOptionalTodo): ITodo[];
   completeTodo(id: string): ITodo[];
 }
 
@@ -36,11 +36,10 @@ export default class Project implements IProject {
     return this.todos;
   }
 
-  updateTodo(id: string, newTodo: ITodo) {
+  updateTodo(id: string, newTodo: IOptionalTodo) {
     return this.todos.map((todo) => {
       if (todo.id === id) {
         todo = Object.assign(todo, newTodo);
-        return todo;
       }
       return todo;
     });

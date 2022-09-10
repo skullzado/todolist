@@ -12,6 +12,13 @@ export interface ITodo {
   project: string;
 }
 
+export interface IOptionalTodo {
+  title: string;
+  description: string;
+  priority: number;
+  dueDate: string;
+}
+
 export default class Todo implements ITodo {
   readonly id: string;
   createdDate: string;

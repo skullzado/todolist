@@ -2,9 +2,8 @@ import formatDistance from 'date-fns/formatDistance';
 import format from 'date-fns/format';
 import LogoIconSrc from '../assets/logo-icon.png';
 import { ProjectList } from '../data';
-import Todo, { ITodo } from './Todo';
+import { ITodo } from './Todo';
 import { IProject } from './Project';
-import { attachNavListener, attachShowListener } from '../functions';
 
 type PriorityLevelType = {
   [key: string]: {
@@ -259,7 +258,7 @@ export default class UI {
 
     modal.innerHTML = `
         <h2 class="modal__title">Edit Todo</h2>
-        <form class="modal__form">
+        <form class="modal__form" data-id="${selectedTodo.id}">
             <label for="title">Title</label>
             <input id="title" class="modal__form-input" type="text" placeholder="Todo Title" value="${
               selectedTodo.title
@@ -289,7 +288,7 @@ export default class UI {
               }>High</option>
             </select>
             <label for="project">Project Type</label>
-            <select id="project" class="modal__form-input">
+            <select id="project" class="modal__form-input" disabled>
               <option value="" selected disabled>Project Type</option>
               <option value="Work" ${
                 selectedTodo.project === 'Work' ? 'selected' : ''
@@ -313,83 +312,7 @@ export default class UI {
       `;
     modalBackdrop?.appendChild(modal);
     app?.appendChild(modalBackdrop!);
-    this.attachTodoActionsListeners(selectedTodo.id, true);
     return modal;
-  }
-
-  static attachAddTodoListener() {
-    const addTodo = document.querySelector('.add-todo') as HTMLButtonElement;
-    addTodo.addEventListener('click', () => {
-      const app = document.querySelector('.app') as HTMLDivElement;
-      const modal = document.querySelector('.modal') as HTMLDivElement;
-      const modalBackdrop = document.querySelector(
-        '.modal-backdrop'
-      ) as HTMLDivElement;
-      app.classList.add('show');
-      modal.classList.add('show');
-      modalBackdrop.classList.add('show');
-    });
-  }
-
-  static attachTodoActionsListeners(todoId?: string, isEditing?: boolean) {
-    const form = document.querySelector('.modal__form') as HTMLFormElement;
-    const app = document.querySelector('.app') as HTMLDivElement;
-    const modal = document.querySelector('.modal') as HTMLDivElement;
-    const modalBackdrop = document.querySelector(
-      '.modal-backdrop'
-    ) as HTMLDivElement;
-
-    form.addEventListener('submit', (event) => {
-      event.preventDefault();
-      const activeBtn = (
-        document.querySelector('.project-nav__btn') as HTMLButtonElement
-      ).dataset['project'];
-      let title = (document.getElementById('title') as HTMLInputElement).value;
-      let date = (document.getElementById('due') as HTMLInputElement).value;
-      let priority = (document.getElementById('priority') as HTMLSelectElement)
-        .value;
-      let projectTitle = (
-        document.getElementById('project') as HTMLSelectElement
-      ).value;
-      let description = (
-        document.getElementById('description') as HTMLTextAreaElement
-      ).value;
-      const project = ProjectList.find((p) => p.title === projectTitle)!;
-
-      if (isEditing && todoId) {
-        project.updateTodo(
-          todoId,
-          new Todo(title, description, Number(priority), date, projectTitle)
-        );
-      } else if (
-        title &&
-        date &&
-        priority &&
-        projectTitle &&
-        description &&
-        project
-      ) {
-        project.addTodo(
-          new Todo(title, description, Number(priority), date, projectTitle)
-        );
-      }
-
-      if (project?.title === activeBtn) {
-        this.renderTodolist(project?.todos ?? []);
-      }
-
-      app.classList.remove('show');
-      modal.classList.remove('show');
-      modalBackdrop.classList.remove('show');
-      this.removeChildren(
-        document.querySelector('.project-nav') as HTMLUListElement
-      );
-      this.renderNavList(ProjectList);
-      attachNavListener();
-      attachShowListener();
-      // this.attachDeleteListener();
-      form.reset();
-    });
   }
 
   static removeChildren(element: HTMLElement) {
