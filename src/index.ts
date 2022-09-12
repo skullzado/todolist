@@ -2,6 +2,7 @@ import UI from './classes/UI';
 import { convertedData } from './data';
 import {
   attachAddBtnListener,
+  attachEditSubmitListener,
   attachNavListener,
   attachShowTodoListener,
   attachTodoActionsListeners,
@@ -18,9 +19,3 @@ attachAddBtnListener();
 attachNavListener();
 attachShowTodoListener();
 attachTodoActionsListeners();
-// attachShowListener();
-// attachNavListener();
-// attachTodoActionsListeners();
-// attachShowModalListener();
-// attachHideModalListener();
-// attachAddSubmitListener();

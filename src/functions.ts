@@ -3,9 +3,9 @@ import Todo, { ITodo } from './classes/Todo';
 import Project, { IProject } from './classes/Project';
 import { convertedData, setData } from './data';
 
-const defaultActiveNav: IProject = convertedData().find(
-  (project: IProject) => project.title === 'Work'
-);
+// const defaultActiveNav: IProject = convertedData().find(
+//   (project: IProject) => project.title === 'Work'
+// );
 
 // Call whenever renderTodolist() is invoked
 export const attachTodoActionsListeners = () => {
@@ -49,6 +49,22 @@ export const attachTodoActionsListeners = () => {
         if (!todoId) {
           return;
         }
+        const projectTitle = (
+          document.querySelector(
+            '.project-nav__btn.active'
+          ) as HTMLButtonElement
+        ).dataset['project'];
+        const selectedProject = convertedData().find(
+          (project: IProject) => project.title === projectTitle
+        );
+        const selectedTodo = selectedProject.todos.find(
+          (todo: ITodo) => todo.id === todoId
+        );
+        if (!projectTitle || !selectedProject || !selectedTodo) return;
+
+        UI.renderForm('EDIT_TODO', selectedTodo);
+        attachCancelBtnListener();
+        attachEditSubmitListener();
       })
     );
   }
@@ -126,6 +142,7 @@ export const attachAddBtnListener = () => {
     modalBackdrop.classList.add('show');
     UI.renderForm('ADD_TODO');
     attachCancelBtnListener();
+    attachAddSubmitListener();
   });
 };
 
@@ -144,105 +161,120 @@ export const attachCancelBtnListener = () => {
   });
 };
 
-// export const attachAddSubmitListener = () => {
-//   const form = document.querySelector('.modal__form') as HTMLFormElement;
-//   const app = document.querySelector('.app') as HTMLDivElement;
-//   const modal = document.querySelector('.modal') as HTMLDivElement;
-//   const modalBackdrop = document.querySelector(
-//     '.modal-backdrop'
-//   ) as HTMLDivElement;
-//   form.addEventListener('submit', (event) => {
-//     event.preventDefault();
+export const attachAddSubmitListener = () => {
+  const form = document.querySelector('.modal__form') as HTMLFormElement;
+  const app = document.querySelector('.app') as HTMLDivElement;
+  const modal = document.querySelector('.modal') as HTMLDivElement;
+  const modalBackdrop = document.querySelector(
+    '.modal-backdrop'
+  ) as HTMLDivElement;
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
+    handleAddFormSubmit();
+    app.classList.remove('show');
+    modal.classList.remove('show');
+    modalBackdrop.classList.remove('show');
+  });
+  form.reset();
+};
 
-//     handleAddFormSubmit();
-//     app.classList.remove('show');
-//     modal.classList.remove('show');
-//     modalBackdrop.classList.remove('show');
-//     UI.removeChildren(document.querySelector('.project-nav') as HTMLDivElement);
-//     UI.removeChildren(document.querySelector('.todolist') as HTMLUListElement);
-//     UI.renderNavList(localData);
-//     UI.renderTodolist(defaultActiveNav?.todos);
-//     attachEventListeners();
-//     attachAddSubmitListener();
-//     attachNavListener();
-//     attachTodoActionsListeners();
-//     attachShowModalListener();
-//     attachHideModalListener();
-//   });
-//   form.reset();
-// };
+export const attachEditSubmitListener = () => {
+  const form = document.querySelector('.modal__form') as HTMLFormElement;
+  console.log(form);
+  const todoId = form.dataset['id'];
+  if (!todoId) return;
 
-// export const attachEditSubmitListener = () => {
-//   const form = document.querySelector('.modal__form') as HTMLFormElement;
-//   const todoId = form.dataset['id']!;
+  const app = document.querySelector('.app') as HTMLDivElement;
+  const modal = document.querySelector('.modal') as HTMLDivElement;
+  const modalBackdrop = document.querySelector(
+    '.modal-backdrop'
+  ) as HTMLDivElement;
+  form.addEventListener('submit', (event) => {
+    event.preventDefault();
 
-//   const app = document.querySelector('.app') as HTMLDivElement;
-//   const modal = document.querySelector('.modal') as HTMLDivElement;
-//   const modalBackdrop = document.querySelector(
-//     '.modal-backdrop'
-//   ) as HTMLDivElement;
-//   form.addEventListener('submit', (event) => {
-//     event.preventDefault();
+    if (!todoId) return;
+    handleEditFormSubmit(todoId);
+    app.classList.remove('show');
+    modal.classList.remove('show');
+    modalBackdrop.classList.remove('show');
+  });
+};
 
-//     if (todoId) {
-//       handleEditFormSubmit(todoId);
-//     }
-//     app.classList.remove('show');
-//     modal.classList.remove('show');
-//     modalBackdrop.classList.remove('show');
-//   });
-// };
+const handleAddFormSubmit = () => {
+  const title = (document.getElementById('title') as HTMLInputElement).value;
+  const date = (document.getElementById('due') as HTMLInputElement).value;
+  const priority = (document.getElementById('priority') as HTMLSelectElement)
+    .value;
+  const projectTitle = (document.getElementById('project') as HTMLSelectElement)
+    .value;
+  const description = (
+    document.getElementById('description') as HTMLTextAreaElement
+  ).value;
+  const selectedProject = convertedData().find(
+    (project: IProject) => project.title === projectTitle
+  );
+  if (!selectedProject) return;
+  if (title && date && priority && description) {
+    selectedProject?.addTodo(
+      new Todo(title, description, Number(priority), date, projectTitle)
+    );
+  }
+  const newData = convertedData().map((project: IProject) => {
+    if (project.title === projectTitle) {
+      Object.assign(project, selectedProject);
+    }
+    return project;
+  });
+  setData(newData);
+  UI.removeChildren(document.querySelector('.project-nav') as HTMLDivElement);
+  UI.removeChildren(document.querySelector('.todolist') as HTMLUListElement);
+  UI.renderNavList(newData);
+  UI.renderTodolist(selectedProject?.todos);
+  attachNavListener();
+  attachShowTodoListener();
+  attachTodoActionsListeners();
+};
 
-// const handleAddFormSubmit = () => {
-//   const title = (document.getElementById('title') as HTMLInputElement).value;
-//   const date = (document.getElementById('due') as HTMLInputElement).value;
-//   const priority = (document.getElementById('priority') as HTMLSelectElement)
-//     .value;
-//   const projectTitle = (document.getElementById('project') as HTMLSelectElement)
-//     .value;
-//   const description = (
-//     document.getElementById('description') as HTMLTextAreaElement
-//   ).value;
-//   const retrievedProject = localData.find((p) => p.title === projectTitle);
-//   if (!retrievedProject) return;
-//   const newProject = new Project(
-//     retrievedProject.title,
-//     retrievedProject.todos
-//   );
-//   if (title && date && priority && description) {
-//     newProject?.addTodo(
-//       new Todo(title, description, Number(priority), date, projectTitle)
-//     );
-//   }
-//   localStorage.setItem('todos', JSON.stringify(localData));
-// };
-
-// const handleEditFormSubmit = (todoId: string) => {
-//   const title = (document.getElementById('title') as HTMLInputElement).value;
-//   const date = (document.getElementById('due') as HTMLInputElement).value;
-//   const priority = (document.getElementById('priority') as HTMLSelectElement)
-//     .value;
-//   const description = (
-//     document.getElementById('description') as HTMLTextAreaElement
-//   ).value;
-//   const projectTitle = (document.getElementById('project') as HTMLSelectElement)
-//     .value;
-//   const retrievedProject = localData.find((p) => p.title === projectTitle);
-//   if (!retrievedProject) return;
-//   // const newProject = new Project(
-//   //   retrievedProject.title,
-//   //   retrievedProject.todos
-//   // );
-//   if (title && date && priority && description && retrievedProject) {
-//     retrievedProject?.updateTodo(todoId, {
-//       title,
-//       description,
-//       priority: Number(priority),
-//       dueDate: date,
-//     });
-//   }
-//   localStorage.setItem('todos', JSON.stringify(localData));
-// };
+const handleEditFormSubmit = (todoId: string) => {
+  const title = (document.getElementById('title') as HTMLInputElement).value;
+  const date = (document.getElementById('due') as HTMLInputElement).value;
+  const priority = (document.getElementById('priority') as HTMLSelectElement)
+    .value;
+  const description = (
+    document.getElementById('description') as HTMLTextAreaElement
+  ).value;
+  const projectTitle = (document.getElementById('project') as HTMLSelectElement)
+    .value;
+  const selectedProject = convertedData().find(
+    (project: IProject) => project.title === projectTitle
+  );
+  if (!selectedProject) return;
+  if (title && date && priority && description) {
+    selectedProject?.updateTodo(todoId, {
+      title,
+      description,
+      priority: Number(priority),
+      dueDate: date,
+    });
+  }
+  console.log(selectedProject);
+  const newData = convertedData().map((project: IProject) => {
+    if (project.title === projectTitle) {
+      project = Object.assign(project, selectedProject);
+      return project;
+    }
+    return project;
+  });
+  console.log(newData);
+  setData(newData);
+  UI.removeChildren(document.querySelector('.project-nav') as HTMLDivElement);
+  UI.removeChildren(document.querySelector('.todolist') as HTMLUListElement);
+  UI.renderNavList(newData);
+  UI.renderTodolist(selectedProject?.todos);
+  attachNavListener();
+  attachShowTodoListener();
+  attachTodoActionsListeners();
+};
 
 const handleDeleteTodo = (todoId: string, projectTitle: string) => {
   const selectedProject: IProject = convertedData().find(
@@ -278,11 +310,8 @@ const handleCompleteTodo = (todoId: string, projectTitle: string) => {
   );
   if (!selectedProject || !selectedTodo || !projectComplete) return;
   selectedProject.completeTodo(todoId);
-  console.log(selectedProject);
   projectComplete.addTodo(selectedTodo);
-  console.log(projectComplete);
   selectedProject.deleteTodo(todoId);
-  console.log(selectedProject);
   const newData = convertedData().map((project: IProject) => {
     if (project.title === selectedProject.title) {
       project = Object.assign(project, selectedProject);
@@ -292,7 +321,6 @@ const handleCompleteTodo = (todoId: string, projectTitle: string) => {
     return project;
   });
   setData(newData);
-  console.log(newData);
   UI.removeChildren(document.querySelector('.project-nav') as HTMLDivElement);
   UI.removeChildren(document.querySelector('.todolist') as HTMLUListElement);
   UI.renderNavList(newData);

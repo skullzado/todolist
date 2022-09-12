@@ -29,7 +29,7 @@ export default class Project implements IProject {
   updateTodo(id: string, newTodo: IOptionalTodo) {
     this.todos.map((todo) => {
       if (todo.id === id) {
-        return Object.assign(todo, newTodo);
+        todo = Object.assign(todo, newTodo);
       }
       return todo;
     });
