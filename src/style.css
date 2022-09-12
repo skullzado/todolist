@@ -227,10 +227,18 @@ input {
   width: 100%;
 }
 
+.todo--empty {
+  font-size: 1.25rem;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .todo {
   box-shadow: 0 2px 4px 0 var(--black-op20);
   border-radius: 0.625rem;
-  padding: 0.625rem 1.25rem;
+  padding: 0.5rem 1rem;
   background-color: var(--white);
 }
 

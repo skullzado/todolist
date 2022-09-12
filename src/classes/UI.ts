@@ -1,7 +1,6 @@
 import formatDistance from 'date-fns/formatDistance';
 import format from 'date-fns/format';
 import LogoIconSrc from '../assets/logo-icon.png';
-import { ProjectList } from '../data';
 import { ITodo } from './Todo';
 import { IProject } from './Project';
 
@@ -87,7 +86,7 @@ export default class UI {
           project.title === 'Work' ? 'active' : ''
         }" title="${project.title}" data-project="${project.title}">
           ${project.title}
-          <span class="project-nav__tasknumber">${project.taskNumber}</span>
+          <span class="project-nav__tasknumber">${project.todos.length}</span>
         </button>
       </li>
       `
@@ -111,7 +110,7 @@ export default class UI {
 
     if (!todolist?.length || !todolist) {
       list.innerHTML = `
-          <p>No todolist found...</p>
+          <p class="todo--empty">No todolist found...</p>
         `;
     } else {
       todolist.sort((a, b) => b.priority - a.priority);
@@ -177,24 +176,29 @@ export default class UI {
     return list;
   }
 
-  static renderAddTodoModal() {
-    const app = document.querySelector('.app');
-    let modalBackdrop;
-    let modal;
-    if (
-      document.querySelector('.modal') &&
-      document.querySelector('.modal-backdrop')
-    ) {
-      modal = document.querySelector('.modal') as HTMLDivElement;
-      modalBackdrop = document.querySelector('.modal-backdrop');
-    } else {
-      modal = document.createElement('div');
-      modalBackdrop = document.createElement('div');
-    }
-    modalBackdrop?.classList.add('modal-backdrop');
+  static renderModal() {
+    const app = document.querySelector('.app') as HTMLDivElement;
+    const modalBackdrop = document.createElement('div') as HTMLDivElement;
+    const modal = document.createElement('div') as HTMLDivElement;
+
+    modalBackdrop.classList.add('modal-backdrop');
     modal.classList.add('modal');
 
-    modal.innerHTML = `
+    modalBackdrop.appendChild(modal);
+    app.appendChild(modalBackdrop);
+  }
+
+  static renderForm(type: string, todo?: ITodo) {
+    const modalBackdrop = document.querySelector(
+      '.modal-backdrop'
+    ) as HTMLDivElement;
+    const modal = document.querySelector('.modal') as HTMLDivElement;
+
+    if (!modal || !modalBackdrop) return;
+
+    switch (type) {
+      case 'ADD_TODO':
+        modal.innerHTML = `
         <h2 class="modal__title">Add Todo</h2>
         <form class="modal__form">
             <label for="title">Title</label>
@@ -227,93 +231,200 @@ export default class UI {
           </div>
         </form>
       `;
-    modalBackdrop?.appendChild(modal);
-    app?.appendChild(modalBackdrop!);
-    return modal;
-  }
-
-  static renderEditTodoModal(todoId: string) {
-    const app = document.querySelector('.app');
-    let modalBackdrop;
-    let modal;
-    if (
-      document.querySelector('.modal') &&
-      document.querySelector('.modal-backdrop')
-    ) {
-      modal = document.querySelector('.modal') as HTMLDivElement;
-      modalBackdrop = document.querySelector('.modal-backdrop');
-    } else {
-      modal = document.createElement('div');
-      modalBackdrop = document.createElement('div');
-    }
-    modalBackdrop?.classList.add('modal-backdrop');
-    modal.classList.add('modal');
-    const activeBtn = document.querySelector(
-      '.project-nav__btn.active'
-    ) as HTMLButtonElement;
-    const project = ProjectList.find(
-      (p) => p.title === activeBtn.dataset['project']
-    );
-    const selectedTodo = project?.todos.find((todo) => todo.id === todoId)!;
-
-    modal.innerHTML = `
+        break;
+      case 'EDIT_TODO':
+        if (!todo) return;
+        modal.innerHTML = `
         <h2 class="modal__title">Edit Todo</h2>
-        <form class="modal__form" data-id="${selectedTodo.id}">
+        <form class="modal__form" data-id="${todo.id}">
             <label for="title">Title</label>
             <input id="title" class="modal__form-input" type="text" placeholder="Todo Title" value="${
-              selectedTodo.title
+              todo.title
             }" />
             <label for="due">Due Date</label>
             <input id="due" class="modal__form-input" type="date" min="${format(
               new Date(),
               'yyyy-MM-dd'
-            )}" value="${format(
-      new Date(selectedTodo.dueDate),
-      'yyyy-MM-dd'
-    )}"/>
+            )}" value="${format(new Date(todo.dueDate), 'yyyy-MM-dd')}"/>
             <label for="priority">Priority Level</label>
             <select id="priority" class="modal__form-input">
               <option value="" selected disabled>Priority Level</option>
               <option value="1" ${
-                selectedTodo.priority ? 'selected' : ''
+                todo.priority ? 'selected' : ''
               }>Non-Priority</option>
-              <option value="2" ${
-                selectedTodo.priority ? 'selected' : ''
-              }>Low</option>
+              <option value="2" ${todo.priority ? 'selected' : ''}>Low</option>
               <option value="3" ${
-                selectedTodo.priority ? 'selected' : ''
+                todo.priority ? 'selected' : ''
               }>Medium</option>
-              <option value="4" ${
-                selectedTodo.priority ? 'selected' : ''
-              }>High</option>
+              <option value="4" ${todo.priority ? 'selected' : ''}>High</option>
             </select>
             <label for="project">Project Type</label>
             <select id="project" class="modal__form-input" disabled>
               <option value="" selected disabled>Project Type</option>
               <option value="Work" ${
-                selectedTodo.project === 'Work' ? 'selected' : ''
+                todo.project === 'Work' ? 'selected' : ''
               }>Work</option>
               <option value="Personal" ${
-                selectedTodo.project === 'Personal' ? 'selected' : ''
+                todo.project === 'Personal' ? 'selected' : ''
               }>Personal</option>
               <option value="General" ${
-                selectedTodo.project === 'General' ? 'selected' : ''
+                todo.project === 'General' ? 'selected' : ''
               }>General</option>
             </select>
             <label for="description">Description</label>
             <textarea id="description" class="modal__form-textarea" cols="25" rows="5">${
-              selectedTodo.description
+              todo.description
             }</textarea>
           <div class="modal__form-actions">
             <button class="cancel-btn" type="button" title="Cancel">Cancel</button>
             <button class="submit-btn" title="Submit">Submit</button>
           </div>
         </form>
+        
       `;
-    modalBackdrop?.appendChild(modal);
-    app?.appendChild(modalBackdrop!);
-    return modal;
+        break;
+      default:
+        return;
+    }
   }
+
+  // static renderAddTodoModal() {
+  //   const app = document.querySelector('.app');
+  //   let modalBackdrop;
+  //   let modal;
+  //   if (
+  //     document.querySelector('.modal') &&
+  //     document.querySelector('.modal-backdrop')
+  //   ) {
+  //     modal = document.querySelector('.modal') as HTMLDivElement;
+  //     modalBackdrop = document.querySelector('.modal-backdrop');
+  //   } else {
+  //     modal = document.createElement('div');
+  //     modalBackdrop = document.createElement('div');
+  //   }
+  //   modalBackdrop?.classList.add('modal-backdrop');
+  //   modal.classList.add('modal');
+
+  //   modal.innerHTML = `
+  //       <h2 class="modal__title">Add Todo</h2>
+  //       <form class="modal__form">
+  //           <label for="title">Title</label>
+  //           <input id="title" class="modal__form-input" type="text" placeholder="Todo Title" />
+  //           <label for="due">Due Date</label>
+  //           <input id="due" class="modal__form-input" type="date" min="${format(
+  //             new Date(),
+  //             'yyyy-MM-dd'
+  //           )}"/>
+  //           <label for="priority">Priority Level</label>
+  //           <select id="priority" class="modal__form-input">
+  //             <option value="" selected disabled>Priority Level</option>
+  //             <option value="1">Non-Priority</option>
+  //             <option value="2">Low</option>
+  //             <option value="3">Medium</option>
+  //             <option value="4">High</option>
+  //           </select>
+  //           <label for="project">Project Type</label>
+  //           <select id="project" class="modal__form-input">
+  //             <option value="" selected disabled>Project Type</option>
+  //             <option value="Work">Work</option>
+  //             <option value="Personal">Personal</option>
+  //             <option value="General">General</option>
+  //           </select>
+  //           <label for="description">Description</label>
+  //           <textarea id="description" class="modal__form-textarea" cols="25" rows="5" placeholder="Todo Description"></textarea>
+  //         <div class="modal__form-actions">
+  //           <button class="cancel-btn" type="button" title="Cancel">Cancel</button>
+  //           <button class="submit-btn" title="Submit">Submit</button>
+  //         </div>
+  //       </form>
+  //     `;
+  //   modalBackdrop?.appendChild(modal);
+  //   app?.appendChild(modalBackdrop!);
+  //   return modalBackdrop;
+  // }
+
+  // static renderEditTodoModal(todoId: string) {
+  //   const app = document.querySelector('.app');
+  //   let modalBackdrop;
+  //   let modal;
+  //   if (
+  //     document.querySelector('.modal') &&
+  //     document.querySelector('.modal-backdrop')
+  //   ) {
+  //     modal = document.querySelector('.modal') as HTMLDivElement;
+  //     modalBackdrop = document.querySelector('.modal-backdrop');
+  //   } else {
+  //     modal = document.createElement('div');
+  //     modalBackdrop = document.createElement('div');
+  //   }
+  //   modalBackdrop?.classList.add('modal-backdrop');
+  //   modal.classList.add('modal');
+  //   const activeBtn = document.querySelector(
+  //     '.project-nav__btn.active'
+  //   ) as HTMLButtonElement;
+  //   const project = localData.find(
+  //     (p) => p.title === activeBtn.dataset['project']
+  //   );
+  //   const selectedTodo = project?.todos.find((todo) => todo.id === todoId)!;
+
+  //   modal.innerHTML = `
+  //       <h2 class="modal__title">Edit Todo</h2>
+  //       <form class="modal__form" data-id="${selectedTodo.id}">
+  //           <label for="title">Title</label>
+  //           <input id="title" class="modal__form-input" type="text" placeholder="Todo Title" value="${
+  //             selectedTodo.title
+  //           }" />
+  //           <label for="due">Due Date</label>
+  //           <input id="due" class="modal__form-input" type="date" min="${format(
+  //             new Date(),
+  //             'yyyy-MM-dd'
+  //           )}" value="${format(
+  //     new Date(selectedTodo.dueDate),
+  //     'yyyy-MM-dd'
+  //   )}"/>
+  //           <label for="priority">Priority Level</label>
+  //           <select id="priority" class="modal__form-input">
+  //             <option value="" selected disabled>Priority Level</option>
+  //             <option value="1" ${
+  //               selectedTodo.priority ? 'selected' : ''
+  //             }>Non-Priority</option>
+  //             <option value="2" ${
+  //               selectedTodo.priority ? 'selected' : ''
+  //             }>Low</option>
+  //             <option value="3" ${
+  //               selectedTodo.priority ? 'selected' : ''
+  //             }>Medium</option>
+  //             <option value="4" ${
+  //               selectedTodo.priority ? 'selected' : ''
+  //             }>High</option>
+  //           </select>
+  //           <label for="project">Project Type</label>
+  //           <select id="project" class="modal__form-input" disabled>
+  //             <option value="" selected disabled>Project Type</option>
+  //             <option value="Work" ${
+  //               selectedTodo.project === 'Work' ? 'selected' : ''
+  //             }>Work</option>
+  //             <option value="Personal" ${
+  //               selectedTodo.project === 'Personal' ? 'selected' : ''
+  //             }>Personal</option>
+  //             <option value="General" ${
+  //               selectedTodo.project === 'General' ? 'selected' : ''
+  //             }>General</option>
+  //           </select>
+  //           <label for="description">Description</label>
+  //           <textarea id="description" class="modal__form-textarea" cols="25" rows="5">${
+  //             selectedTodo.description
+  //           }</textarea>
+  //         <div class="modal__form-actions">
+  //           <button class="cancel-btn" type="button" title="Cancel">Cancel</button>
+  //           <button class="submit-btn" title="Submit">Submit</button>
+  //         </div>
+  //       </form>
+  //     `;
+  //   modalBackdrop?.appendChild(modal);
+  //   app?.appendChild(modalBackdrop!);
+  //   return modal;
+  // }
 
   static removeChildren(element: HTMLElement) {
     while (element.firstChild) {

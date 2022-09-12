@@ -1,24 +1,26 @@
 import UI from './classes/UI';
-import { ProjectList } from './data';
+import { convertedData } from './data';
 import {
-  attachShowModalListener,
+  attachAddBtnListener,
   attachNavListener,
-  attachShowListener,
+  attachShowTodoListener,
   attachTodoActionsListeners,
-  attachHideModalListener,
-  attachAddSubmitListener,
 } from './functions';
 import './style.css';
 
 const root = document.getElementById('root') as HTMLDivElement;
 
 root?.appendChild(UI.renderLayout());
-UI.renderNavList(ProjectList);
-UI.renderTodolist(ProjectList[0].todos);
-UI.renderAddTodoModal();
-attachShowListener();
+UI.renderNavList(convertedData());
+UI.renderTodolist(convertedData()[0].todos);
+UI.renderModal();
+attachAddBtnListener();
 attachNavListener();
+attachShowTodoListener();
 attachTodoActionsListeners();
-attachShowModalListener();
-attachHideModalListener();
-attachAddSubmitListener();
+// attachShowListener();
+// attachNavListener();
+// attachTodoActionsListeners();
+// attachShowModalListener();
+// attachHideModalListener();
+// attachAddSubmitListener();
